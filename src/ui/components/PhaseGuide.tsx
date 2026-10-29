@@ -73,11 +73,13 @@ export function GuideMenu() {
   const shown = useRef(new Set<string>());
   const ref = useRef<HTMLDivElement>(null);
 
+  // Opens by itself once per phase, but never over an event the player has to answer.
+  const blocked = state.pendingEvents.length > 0;
   useEffect(() => {
-    if (steps.length === 0 || shown.current.has(state.phase)) return;
+    if (blocked || steps.length === 0 || shown.current.has(state.phase)) return;
     shown.current.add(state.phase);
     if (done === 0) setOpen(true);
-  }, [state.phase, steps.length, done]);
+  }, [state.phase, steps.length, done, blocked]);
 
   useEffect(() => {
     if (!open) return undefined;

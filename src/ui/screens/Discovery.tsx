@@ -9,6 +9,7 @@ import { compactMoney, fixed, money } from '../../format.ts';
 import { Hint } from '../components/Hint.tsx';
 import { Icon } from '../components/Icon.tsx';
 import type { IconName } from '../components/Icon.tsx';
+import { MarketMap } from '../components/MarketMap.tsx';
 import { TurnSummary } from '../components/TurnSummary.tsx';
 import { Badge, Button, Callout, Card, Empty, Field, Inline, Kpi, Modal, Segmented, Theory, TurnBar } from '../components/common.tsx';
 import { useGame } from '../context.ts';
@@ -92,6 +93,8 @@ function Board() {
         <Kpi label={t('Опровергнуто')} value={tested.length - supported} />
         <Kpi label={t('Отчётов')} value={state.reports.length} foot={state.reports.length > 0 ? t('в разделе «Отчёты»') : t('пока нет')} />
       </div>
+
+      <MarketMap />
 
       <ResearchBoard reportsSection="reports" />
     </>

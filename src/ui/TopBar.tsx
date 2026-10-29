@@ -3,6 +3,7 @@ import { estimatedBurn, plannedBurn } from '../engine/growth.ts';
 import { TURN_HOURS } from '../engine/potime.ts';
 import { compactMoney, months } from '../format.ts';
 import { Hint } from './components/Hint.tsx';
+import { Battery, Hearts, MoodFace, Ticks } from './components/Meters.tsx';
 import { Icon } from './components/Icon.tsx';
 import { GuideMenu } from './components/PhaseGuide.tsx';
 import { Button, Progress } from './components/common.tsx';
@@ -43,12 +44,12 @@ export function TopBar(props: { onMenu: () => void }) {
         <GuideMenu />
       </div>
       <div className="topbar-kpis">
-        <div className="tkpi">
-          <span className="tkpi-label">
-            <Icon name="wallet" size={12} />
-            {t('Деньги')}
+        <div className="tkpi tkpi-row">
+          <span className="medal sm coin" aria-hidden="true">$</span>
+          <span className="tkpi-stack">
+            <span className="tkpi-label">{t('Деньги')}</span>
+            <span className="tkpi-value">{compactMoney(state.cash)}</span>
           </span>
-          <span className="tkpi-value">{compactMoney(state.cash)}</span>
         </div>
         <div className={`tkpi ${runwayTone}`}>
           <span className="tkpi-label">
@@ -60,6 +61,7 @@ export function TopBar(props: { onMenu: () => void }) {
             {months(runway)}
             {prelaunch && noTeam ? '*' : ''}
           </span>
+          <Battery months={runway} />
         </div>
         {state.phase !== 'end' && (
           <div className={`tkpi optional ${state.poHours < 8 ? 'warning' : ''}`}>
@@ -72,6 +74,7 @@ export function TopBar(props: { onMenu: () => void }) {
               {Math.round(state.poHours)}
               <span className="text-muted text-xs">{' '}{t('/ {0} ч', [TURN_HOURS[state.phase]])}</span>
             </span>
+            <Ticks value={state.poHours} max={TURN_HOURS[state.phase]} />
           </div>
         )}
         <div className={`tkpi trust ${trustTone}`}>
@@ -80,11 +83,11 @@ export function TopBar(props: { onMenu: () => void }) {
             {t('Доверие · {0}', [Math.round(state.trust)])}
             <Hint term="trust" />
           </span>
-          <Progress value={state.trust} tone="auto" />
+          <Hearts value={state.trust} />
         </div>
         <div className="tkpi optional secondary">
           <span className="tkpi-label">
-            <Icon name="heart" size={12} />
+            <MoodFace value={state.morale} size={14} />
             {t('Мотивация · {0}', [Math.round(state.morale)])}
             <Hint term="morale" />
           </span>

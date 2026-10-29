@@ -8,6 +8,8 @@ import { Icon } from '../components/Icon.tsx';
 import type { IconName } from '../components/Icon.tsx';
 import { Hint } from '../components/Hint.tsx';
 import { LanguageSelect } from '../components/LanguageSelect.tsx';
+import { JourneyMap } from '../components/JourneyMap.tsx';
+import { ScenarioArt } from '../components/ScenarioArt.tsx';
 import { ThemeToggle } from '../components/ThemeToggle.tsx';
 import { Badge, Button, Segmented } from '../components/common.tsx';
 import { loadHistory } from '../history.ts';
@@ -68,22 +70,25 @@ export function NewGameScreen(props: { onStart: (s: GameState) => void }) {
               const meta = SCENARIO_META[id];
               return (
                 <button key={id} type="button" role="radio" aria-checked={scenario === id} className={`scenario ${scenario === id ? 'selected' : ''}`} onClick={() => setScenario(id)}>
-                  <div className="row-between">
-                    <div className="scenario-icon" style={{ background: meta.color }}>
-                      <Icon name={meta.icon} size={20} />
+                  <div className="scenario-art-wrap">
+                    <ScenarioArt id={id} />
+                    <span className="scenario-kind">{s.kind === 'b2c' ? 'B2C' : 'B2B'}</span>
+                  </div>
+                  <div className="scenario-body">
+                    <div className="row">
+                      <span className="medal sm" style={{ background: meta.color }}>
+                        <Icon name={meta.icon} size={14} />
+                      </span>
+                      <div className="option-title">{s.productName}</div>
                     </div>
-                    <Badge tone={s.kind === 'b2c' ? 'accent' : 'info'}>{s.kind === 'b2c' ? 'B2C' : 'B2B'}</Badge>
-                  </div>
-                  <div className="stack-xs">
-                    <div className="option-title">{s.productName}</div>
                     <div className="text-sm text-muted">{s.title.split(' — ')[1]}</div>
-                  </div>
-                  <div className="row wrap" style={{ gap: 6 }}>
-                    {s.facts.map((f) => (
-                      <Badge key={f} outline>
-                        {f}
-                      </Badge>
-                    ))}
+                    <div className="row wrap" style={{ gap: 6 }}>
+                      {s.facts.map((f) => (
+                        <Badge key={f} outline>
+                          {f}
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </button>
               );
@@ -164,17 +169,8 @@ export function NewGameScreen(props: { onStart: (s: GameState) => void }) {
 
         <section className="stack">
           <div className="eyebrow">{t('Как устроена игра')}</div>
-          <div className="timeline">
-            {STEPS.map((s, i) => (
-              <div key={s.title} className="timeline-step">
-                <div className="row-between">
-                  <span className="timeline-num">{i + 1}</span>
-                  <Icon name={s.icon} size={16} className="text-muted" />
-                </div>
-                <strong>{s.title}</strong>
-                <span className="text-xs text-muted">{s.text}</span>
-              </div>
-            ))}
+          <div className="card journey-card">
+            <JourneyMap current={0} details={STEPS.map((step) => step.text)} />
           </div>
         </section>
 

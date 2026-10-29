@@ -4,6 +4,8 @@ import type { GameState, LogEntry } from '../engine/types.ts';
 import { Icon } from './components/Icon.tsx';
 import type { IconName } from './components/Icon.tsx';
 import { Badge, Button, Modal } from './components/common.tsx';
+import type { SceneKind } from './components/EventScene.tsx';
+import { EventScene } from './components/EventScene.tsx';
 import { useGame } from './context.ts';
 import { t } from '../i18n/index.ts';
 
@@ -12,6 +14,7 @@ interface Speaker {
   role: string;
   icon: IconName;
   color: string;
+  scene: SceneKind;
 }
 
 const GROUPS: Record<string, string[]> = {
@@ -27,19 +30,19 @@ function speakerOf(state: GameState, eventId: string): Speaker {
   const group = Object.keys(GROUPS).find((g) => GROUPS[g].includes(eventId)) ?? 'ops';
   switch (group) {
     case 'ceo':
-      return { name: scenarioOf(state).ceoName, role: t('CEO и основатель'), icon: 'building', color: '#6366f1' };
+      return { name: scenarioOf(state).ceoName, role: t('CEO и основатель'), icon: 'building', color: '#6366f1', scene: 'board' };
     case 'board':
-      return { name: t('Совет директоров'), role: 'Northwind Ventures', icon: 'briefcase', color: '#0ea5e9' };
+      return { name: t('Совет директоров'), role: 'Northwind Ventures', icon: 'briefcase', color: '#0ea5e9', scene: 'board' };
     case 'team':
-      return { name: t('Команда'), role: t('Разработка и дизайн'), icon: 'users', color: '#14b8a6' };
+      return { name: t('Команда'), role: t('Разработка и дизайн'), icon: 'users', color: '#14b8a6', scene: 'office' };
     case 'research':
-      return { name: t('Исследования'), role: t('Интервью и рекрутинг респондентов'), icon: 'message', color: '#10b981' };
+      return { name: t('Исследования'), role: t('Интервью и рекрутинг респондентов'), icon: 'message', color: '#10b981', scene: 'office' };
     case 'market':
-      return { name: t('Рынок'), role: t('Конкуренты и платформы'), icon: 'globe', color: '#f59e0b' };
+      return { name: t('Рынок'), role: t('Конкуренты и платформы'), icon: 'globe', color: '#f59e0b', scene: 'market' };
     case 'growth':
-      return { name: t('Возможность роста'), role: t('Партнёры, медиа, клиенты'), icon: 'megaphone', color: '#8b5cf6' };
+      return { name: t('Возможность роста'), role: t('Партнёры, медиа, клиенты'), icon: 'megaphone', color: '#8b5cf6', scene: 'market' };
     default:
-      return { name: t('Инцидент'), role: t('Качество, безопасность, данные'), icon: 'alert', color: '#f43f5e' };
+      return { name: t('Инцидент'), role: t('Качество, безопасность, данные'), icon: 'alert', color: '#f43f5e', scene: 'office' };
   }
 }
 
@@ -101,32 +104,37 @@ export function EventDialog(props: { outcome: LogEntry | null; onResolve: () => 
   const def = eventDef(pending.eventId);
   const data = pending.data ?? {};
   const queued = state.pendingEvents.length - 1;
+  const speaker = speakerOf(state, def.id);
 
   return (
-    <Modal size="lg" header={<SpeakerHeader speaker={speakerOf(state, def.id)} meta={queued > 0 ? t('ещё {0} в очереди', [queued]) : undefined} />}>
+    <Modal size="lg" header={<SpeakerHeader speaker={speaker} meta={queued > 0 ? t('ещё {0} в очереди', [queued]) : undefined} />}>
+      <div className="event-scene-wrap">
+        <EventScene kind={speaker.scene} accent={speaker.color} />
+      </div>
       <h2 className="modal-title">{def.title}</h2>
       <div className="message">{def.text(state, data)}</div>
       <div className="eyebrow mt-md">{t('Ваше решение')}</div>
-      <div className="choice-list" style={{ marginTop: 8 }}>
+      <div className="choice-cards">
         {def.options.map((o, i) => {
           const available = o.available ? o.available(state, data) : true;
           return (
             <button
               key={i}
               type="button"
-              className="choice"
+              className="choice-card"
               disabled={!available}
               onClick={() => {
                 props.onResolve();
                 dispatch({ type: 'resolve_event', option: i });
               }}
             >
-              <span className="choice-key">{String.fromCharCode(65 + i)}</span>
-              <span className="grow">
-                <div className="choice-label">{o.label}</div>
-                {o.hint && <div className="choice-hint">{available ? o.hint : t('Недоступно: {0}', [o.hint.toLowerCase()])}</div>}
+              <span className="choice-card-key">{String.fromCharCode(65 + i)}</span>
+              <span className="choice-card-label">{o.label}</span>
+              {o.hint && <span className="choice-card-hint">{available ? o.hint : t('Недоступно: {0}', [o.hint.toLowerCase()])}</span>}
+              <span className="choice-card-cta">
+                {available ? t('Выбрать') : t('Недоступно')}
+                {available && <Icon name="arrowRight" size={14} />}
               </span>
-              <Icon name="chevronRight" size={16} />
             </button>
           );
         })}

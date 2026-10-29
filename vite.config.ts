@@ -6,5 +6,5 @@ export default defineConfig({
   base: './',
   // The bundle is mostly game texts (handbook, events), so it is larger than usual.
   // es2022: the language dictionary is loaded with a top-level await.
-  build: { chunkSizeWarningLimit: 800, target: 'es2022' },
+  build: { chunkSizeWarningLimit: 900, target: 'es2022' },
 });

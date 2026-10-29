@@ -15,6 +15,7 @@ import { chartMarkers } from '../timeline.ts';
 import { Diagnostics } from './Diagnostics.tsx';
 import { OkrCard } from './Okr.tsx';
 import { t } from '../../i18n/index.ts';
+import { OfficeScene } from './OfficeScene.tsx';
 
 const MOD_LABELS: Record<string, string> = { ...LEVER_NAMES, acquisition: t('Привлечение'), cpi: t('Стоимость рекламы'), churn: t('Отток') };
 
@@ -71,11 +72,14 @@ export function OverviewTab() {
       <TurnSummary title={h.length > 0 ? t('Итоги месяца') : t('Продукт запущен')} />
 
       {!last ? (
-        <Card title={t('Первый месяц после запуска')}>
-          <Empty icon="activity" title={t('Данные появятся после завершения месяца')}>
-            {t('Задайте бюджеты в разделе «Маркетинг», проверьте очередь разработки и нажмите «Завершить месяц» внизу экрана.')}
-          </Empty>
-        </Card>
+        <>
+          <Card title={t('Первый месяц после запуска')}>
+            <Empty icon="activity" title={t('Данные появятся после завершения месяца')}>
+              {t('Задайте бюджеты в разделе «Маркетинг», проверьте очередь разработки и нажмите «Завершить месяц» внизу экрана.')}
+            </Empty>
+          </Card>
+          <OfficeScene />
+        </>
       ) : (
         <>
           <div className="kpi-grid five">
@@ -101,6 +105,8 @@ export function OverviewTab() {
               foot={last.obs.northStar === null ? t('нужна продуктовая аналитика') : undefined}
             />
           </div>
+
+          <OfficeScene />
 
           <Diagnostics />
 
